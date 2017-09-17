@@ -1,8 +1,9 @@
-﻿#region Copyright
+#region Copyright
 //------------------------------------------------------------------------------
 // <copyright file="CoderState.cs" company="StateForge">
 //      Copyright (c) 2010 StateForge.  All rights reserved.
 // </copyright>
+// Added Feature Event Handler and partial method // Modified by: J.Guillaume D.-Isabelle, 2017
 //------------------------------------------------------------------------------
 #endregion
 
@@ -379,6 +380,7 @@ namespace StateForge
             foreach (EventType evt in events)
             {
                 WriteEvent(stateCode, state, evt);
+        //Writting Events
             }
         }
 
