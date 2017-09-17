@@ -5,6 +5,7 @@
 // </copyright>
 //------------------------------------------------------------------------------
 #endregion
+
 #region JG Extension
 // Added Feature Event Handler and partial method extension Pre and Post event.
 // Definition : The Event feature add Event Handler +/ delegate to the generated code when feeder is used. It also add partial method that are called within the feeder. these method body can be declared when wanting to extend.
@@ -89,7 +90,7 @@ namespace StateForge
       CodeMemberMethod _partialOnPost_MethodDeclaration = new CodeMemberMethod();
       feederCode.Members.Add(_partialOnPost_MethodDeclaration);
       CodeMemberMethod _partialOnPre_MethodDeclaration = new CodeMemberMethod();
-      feederCode.Members.Add(_partialOnPost_MethodDeclaration);
+      feederCode.Members.Add(_partialOnPre_MethodDeclaration);
 
       _partialOnPost_MethodDeclaration.Name = partialPostInvokerName;
       _partialOnPost_MethodDeclaration.Attributes = MemberAttributes.Public;
@@ -98,7 +99,7 @@ namespace StateForge
       _partialOnPost_MethodDeclaration.ReturnType = new CodeTypeReference("partial void");
       _partialOnPost_MethodDeclaration.Comments.Add(new CodeCommentStatement("Extension method for " + evt.id));
 
-      _partialOnPre_MethodDeclaration.Name = partialPostInvokerName;
+      _partialOnPre_MethodDeclaration.Name = partialPreInvokerName;
       _partialOnPre_MethodDeclaration.Attributes = MemberAttributes.Public;
 
       _partialOnPre_MethodDeclaration.Attributes = MemberAttributes.ScopeMask;
