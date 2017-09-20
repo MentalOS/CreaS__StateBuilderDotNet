@@ -73,6 +73,8 @@ namespace StateForge
     //    }
     private void WriteEvent(CodeTypeDeclaration feederCode, EventType evt)
     {
+      string __methodEventName = evt.id + "Event";
+
       CodeMemberMethod _eventFeederMethod = new CodeMemberMethod();
       feederCode.Members.Add(_eventFeederMethod);
 
@@ -185,7 +187,34 @@ namespace StateForge
 
       // Add StateCurrent.EvOpen(this);
       _eventFeederMethod.Statements.Add(_contextMethodInvoker);
-      _eventFeederMethod.Statements.Add(_eventDelegateInvoker);
+
+
+      //todo ADd if not null invoke
+      _eventFeederMethod.Comments.Add(new CodeCommentStatement("todo Add if..."));
+      #region if delegate not null call event
+      /*I want: 
+       if (this.EventDELEGATE != null) this.EventDELEGATE(this,e);
+       */
+
+      CodeSnippetExpression cex = new CodeSnippetExpression(__methodEventName + "!=null");
+      
+      CodeExpression condition2
+            = new CodeBinaryOperatorExpression(       
+     
+      );
+
+      CodeStatement[] trueStatements2 = { new CodeCommentStatement("Do this if true") };
+
+
+      CodeConditionStatement ifStatement2 = new CodeConditionStatement(cex, trueStatements2);
+      ifStatement2.TrueStatements.Add(_eventDelegateInvoker);
+
+      _eventFeederMethod.Statements.Add(ifStatement2);
+
+
+#endregion
+
+    //  _eventFeederMethod.Statements.Add(_eventDelegateInvoker);
 
 
 
