@@ -10,7 +10,7 @@ namespace StateForge
 {
     using System;
 
-    public class StateBuilderOptions
+    public partial class StateBuilderOptions
     {
         public enum Language
         {

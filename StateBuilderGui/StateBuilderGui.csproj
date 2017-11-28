@@ -192,7 +192,17 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" "$(MSBuildProgramFiles32)\Creatix\CodeFort Free Edition\CodeFort.Console" /build "$(MSBuildProjectDirectory)\StateBuilderGui.codefort"</PostBuildEvent>
+    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" "$(MSBuildProgramFiles32)\Creatix\CodeFort Free Edition\CodeFort.Console" /build "$(MSBuildProjectDirectory)\StateBuilderGui.codefort"
+
+$(TargetDir)to_local_StateBuilder_Install.bat
+cd $(TargetDir)
+rem $(TargetFileName) -b "A:\usr\src\SMCG_PS\Examples\CS\Microwave2\Microwave.fsmcs"
+rem $(TargetFileName) -b "A:\usr\src\SMCG_PS\StateBuilderGui\bin\Debug\PhoneStateModel.fsmcs"
+rem $(TargetFileName) -b "A:\usr\src\SMCG_PS\Examples\CS\CallManager2\CallDirector.fsmcs"
+rem $(TargetFileName) -b "A:\usr\src\SMCG_PS\Examples\CS\CallManager2\CallControl.fsmcs"
+rem $(TargetFileName) -b "A:\Caishen\src\Mastery\PhoneStateMachine\Shared\PhoneStateMachine.Entities\Phone.fsmcs"
+
+rem $(TargetFileName) -b "A:\usr\src\SMCG_PS\Examples\CS\Seminar\Seminar.fsmcs"</PostBuildEvent>
   </PropertyGroup>
   <!--
   <PropertyGroup>

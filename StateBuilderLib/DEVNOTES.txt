@@ -1,0 +1,210 @@
+﻿
+//----------------------------------------------
+
+//-----------TODO BusPublisher--------------------------------
+/*   SKETCHES for the BUS Publisher
+
+//IN the stateLib
+ public interface IBusPublisher {  void  PublishBusMessage<TMessage>(TMessage t); }
+
+
+ //IN the Context 
+
+  IBusPublisher __busPub= this .InstrumentPerspective__InstrumentPerspective .BusPublisher;
+          if ( __busPub != null) //bus publish           __busPub .Publish<CreateMarketOverViewerNodeCompletedEventArgs > ( e );
+					
+					//todo add
+  IBusPublisher __busPub= this .FeederProperty .BusPublisher;
+									//...into event context method if buspublish==true
+
+
+ //IN THE FEEDER
+   ///<summary>Bus publishing interfare</summary>
+      public virtual IBusPublisher BusPublisher
+      {
+         get
+         {
+            //if (busPublisher != null) //todo logics if no bus... will be in context of the event that if interface is null, no publishing...
+//Might be interesting to think about using the default App bus like: 
+         //DTSApp.PublishBusMessage(message); so we would be setting DTSApp as the default bus if none choosen
+               return busPublisher;
+            //return DTSApp.BusApp;
+         }
+         internal set
+         {
+            this.busPublisher = value;
+         }
+      }
+      protected virtual IBusPublisher busPublisher; //todo set bus publisher object within the feeder
+
+
+   //todo In Init of implemented manually class
+   ctor ()
+   {
+   busPublisher = this; //or any other object
+   }
+    */
+
+
+
+
+//----------------------------------------------
+todo static event
+* logics in the context that fire the event of in the feeder Statically.
+* Think of Having the Context having the event statically alos, would there be advantages to subscribe directly to a context static class rather that using the feeded entity ?? seems the same
+
+
+
+
+
+
+==ISSUES==
+
+* Todo Read   WS-Eventing on RN
+* Only one class is feeded : SOLVED
+* Next:
+	* subscribe to context event within the Feeder
+	//here is what I want created within the 
+	
+	
+
+	 //Feeder code - New event handler simplfied
+	  public event EventHandler<NumberIsInvalidEventArgs> NumberIsInvalid;
+
+	//FEEDER CODE
+
+
+
+
+
+
+
+//DONE
+==Next: 
+//I want the Event in the feeder to be triggered by a subscription to the context
+#region   EVENT SUBSCRIBED TO CONTEXT
+     
+	 // TODO  ------------------------------------->
+	 //add Method initializer invoke to Feeder Constructor
+	 public FEEDERCtor()
+	 {
+		InitializeContextEventSubscription();
+		OnCreated();
+	 }
+
+	 partial void OnCreated();
+
+
+
+
+	 //DONE <---------------------------------------------
+
+	public void InitializeContextEventSubscription()
+	{
+			context.MyEventDelegate +=
+						MyEventDelegateHandler;
+	}
+
+	private void MyEventDelegateHandler(object s,EventArgs e)
+	=>		this.MyEventDelegate?.Invoke(s,e);
+	
+
+
+	#endregion
+
+
+
+
+
+
+
+
+	//used by the state entry to set the new state
+	public StateEnum SetState(int stateId)
+	{
+		State= (StateEnum)Enum.Parse(typeof(StateEnum), stateId );
+		return State;
+	}
+
+
+
+		//----------------------------------------------------------------DONE
+	///DONE 
+	//IN STATE Class
+	 public override void OnEntry(PhoneStateModelContext context) {
+	 Phone p;
+            p = context.Phone_p;
+			p.State = StateEnum.ModelRinging;
+        }
+		//
+	
+	//STATE CODE / CONTEXT to decide
+	OnEntry(...) //Answered
+	{
+		context.Phone_p.State = PhoneStateEnum.Answered;
+	}
+
+
+
+	//------------------- WHAT I HAVE --------------------
+	//FEEDER
+	
+	public PSMStateEnum State {get;set;}
+
+        #region CalledAnswered
+        // use to register event CalledAnsweredEvent
+        public event CalledAnsweredEventHandler CalledAnsweredEvent;
+	 public delegate void CalledAnsweredEventHandler(object sender, EventArgs e);
+	 
+        // -------------CalledAnswered------------
+        // --------------------------------
+        public void CalledAnswered() {
+            this.BeforeCalledAnswered();
+            context.CalledAnswered();
+            if (CalledAnsweredEvent!=null) {
+                // Call subscriber if any
+                this.CalledAnsweredEvent(this, new EventArgs());
+            }
+            this.AfterCalledAnswered();
+        }
+        
+        // Extension method for CalledAnswered
+        partial void AfterCalledAnswered() ;
+        
+        partial void BeforeCalledAnswered() ;         
+        #endregion
+        
+		//foreach events
+ public partial class NumberPressedEventArgs : System.EventArgs {
+    }
+
+
+	//---------------------------------
+	//CONTEXT
+ public event evStartEventHandler evStartEvent;
+ partial void AfterevStart() ;
+partial void AfterevStop() ;
+
+  private void evStopSync() {
+            this.BeforeevStop();
+            StateCurrent.evStop(this);
+            if (evStopEvent!=null) {
+                // Do this if true
+                this.evStopEvent(this, new EventArgs());
+            }
+            this.AfterevStop();
+        }
+        
+//---------------------------
+//In each State
+   partial void OnEntryStartingExtension(PhoneStateModelContext context);
+
+        partial void OnEntryEndingExtension(PhoneStateModelContext context);
+        // State CODE : _feeded. = Idle
+        // OnEntry
+        public override void OnEntry(PhoneStateModelContext context) {
+            this.OnEntryStartingExtension(context);
+            context.Observer.OnEntry(context.Name, PhoneStateModelIdleState.Instance.Name);
+            this.OnEntryEndingExtension(context);
+        }
+

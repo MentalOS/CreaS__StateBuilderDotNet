@@ -20,32 +20,32 @@ namespace StateForge.StateMachine
         /// <summary>
         /// A leaf state, it doesn't have any child.
         /// </summary>
-        Leaf,
+        Leaf=0,
         
         /// <summary>
         /// The root state, it doesn't have any parent state.
         /// </summary>
-        Root,
+        Root=1,
         
         /// <summary>
         /// An error state.
         /// </summary>
-        Error,
+        Error=2,
         
         /// <summary>
         /// A final state.
         /// </summary>
-        Final,
+        Final=3,
         
         /// <summary>
         /// A composite state, it has child state.
         /// </summary>
-        Composite,
+        Composite=4,
         
         /// <summary>
         /// A parallel state, it has child state which run in parallel.
         /// </summary>
-        Parallel,
+        Parallel=5,
     }
 
     /// <summary>
@@ -62,14 +62,27 @@ namespace StateForge.StateMachine
         /// Gets or sets the state name.
         /// </summary>
         public string Name { get; protected set; }
-    }
+
+
+      // StateForge.StateMachine.StateBase.
+      /// <summary>
+      /// ParseEnum
+      /// </summary>
+      /// <typeparam name="T"></typeparam>
+      /// <param name="value"></param>
+      /// <returns></returns>
+      public static T ParseEnum<T>(string value)
+         {
+            return (T)Enum .Parse ( typeof ( T ), value, true );
+         }
+}
 
     /// <summary>
     /// The base class for representing a state.
     /// </summary>
     /// <typeparam name="TContext">A Context class.</typeparam>
     /// <typeparam name="TState">A State class.</typeparam>
-    public abstract class State<TContext, TState> : StateBase 
+    public  abstract partial class State<TContext, TState> : StateBase 
     {
         /// <summary>
         ///  Initializes a new instance of the State class.

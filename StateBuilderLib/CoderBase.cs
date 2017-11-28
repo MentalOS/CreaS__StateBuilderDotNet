@@ -8,327 +8,365 @@
 
 namespace StateForge
 {
-    using System;
-    using System.CodeDom;
-    using System.Diagnostics;
+   using System;
+   using System .CodeDom;
+   using System .Diagnostics;
 
-    public abstract class CoderBase
-    {
-        protected static TraceSource ts = new TraceSource("StateBuilder");
-        protected StateMachineType Model { get; private set; }
-        public CodeNamespace CodeNamespace { get; private set; }
-        public StateBuilderOptions Options { get; set; }
+   public abstract partial class CoderBase
+   {
+      protected static TraceSource ts = new TraceSource ( "StateBuilder" );
+      protected StateMachineType Model { get; private set; }
+      public CodeNamespace CodeNamespace { get; internal set; }
+      public StateBuilderOptions Options { get; set; }
 
-        protected CoderBase(StateMachineType model, StateBuilderOptions options, CodeNamespace codeNamespace)
-        {
-            Model = model;
-            Options = options;
-            CodeNamespace = codeNamespace;
-        }
+      protected CoderBase ( StateMachineType model, StateBuilderOptions options, CodeNamespace codeNamespace )
+      {
+         Model = model;
+         Options = options;
+         CodeNamespace = codeNamespace;
+         OnCoderBaseCreated ( model, options, codeNamespace );
+      }
 
-        public abstract void WriteCode();
+      partial void OnCoderBaseCreated ( StateMachineType model, StateBuilderOptions options, CodeNamespace codeNamespace )
+      ;
 
-        /// <summary>
-        /// Get the state class name: DoorXxxState
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        protected string GetStateClassName(StateType state)
-        {
-            return Model.settings.name + state.name + "State";
-        }
+      public abstract void WriteCode ( );
 
-        /// <summary>
-        /// Get the base context class name, either Context or ContextAsync.
-        /// </summary>
-        /// <returns></returns>
-        protected string GetContextBaseClassName(StateType state)
-        {
-            if ((Model.settings.asynchronous == true) && ((state.Type.HasFlag(StateType.TypeFlags.ROOT) == true)))
-            {
-                return "ContextAsync";
-            }
-            else
-            {
-                return "Context";
-            }
-        }
+      /// <summary>
+      /// Get the state class name: DoorXxxState
+      /// </summary>
+      /// <param name="state"></param>
+      /// <returns></returns>
+      protected string GetStateClassName ( StateType state )
+      {
+         return Model .settings .name + state .name + "State";
+      }
 
-        /// <summary>
-        /// Get the name of the synchromous method.
-        /// </summary>
-        /// <param name="evt"></param>
-        /// <returns></returns>
-        protected string GetMethodNameSync(EventType evt)
-        {
-            return evt.id + "Sync";
-        }
+      /// <summary>
+      /// Get the base context class name, either Context or ContextAsync.
+      /// </summary>
+      /// <returns></returns>
+      protected string GetContextBaseClassName ( StateType state )
+      {
+         if ((Model .settings .asynchronous == true) && ((state .Type .HasFlag ( StateType .TypeFlags .ROOT ) == true)))
+         {
+            return "ContextAsync";
+         }
+         else
+         {
+            return "Context";
+         }
+      }
 
-        /// <summary>
-        /// Gets the context class name: MicrowaveContext,  MicrowaveEngineContext, MicrowaveDoorContext ...
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        protected string GetContextClassName(StateType state)
-        {
-            StateType stateTop = Model.GetStateTop(state);
-            if (Model.IsRoot(stateTop) == true)
-            {
-                return Model.settings.context.@class;
-            }
-            else
-            {
-                return Model.settings.name + stateTop.name + "Context";
-            }
-        }
+      /// <summary>
+      /// Get the name of the synchromous method.
+      /// </summary>
+      /// <param name="evt"></param>
+      /// <returns></returns>
+      protected string GetMethodNameSync ( EventType evt )
+      {
+         return evt .id + "Sync";
+      }
 
-        /// <summary>
-        /// Gets the parent context class name.
-        /// </summary>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        protected string GetContextParentClassName(StateType state)
-        {
-            if (state.StateParallel == null)
-            {
-                return GetContextClassName(state);
-            }
-            else 
-            {
-                return GetContextClassName(state.StateParallel);
-            }
-        }
+      /// <summary>
+      /// Gets the context class name: MicrowaveContext,  MicrowaveEngineContext, MicrowaveDoorContext ...
+      /// </summary>
+      /// <param name="state"></param>
+      /// <returns></returns>
+      protected string GetContextClassName ( StateType state )
+      {
+         StateType stateTop = Model .GetStateTop ( state );
+         if (Model .IsRoot ( stateTop ) == true)
+         {
+            return Model .settings .context .@class;
+         }
+         else
+         {
+            return Model .settings .name + stateTop .name + "Context";
+         }
+      }
 
-        protected string GetParallelClassName(StateType state)
-        {
-            return Model.settings.name + state.name +  "Parallel";
-        }
+      /// <summary>
+      /// Gets the parent context class name.
+      /// </summary>
+      /// <param name="state"></param>
+      /// <returns></returns>
+      protected string GetContextParentClassName ( StateType state )
+      {
+         if (state .StateParallel == null)
+         {
+            return GetContextClassName ( state );
+         }
+         else
+         {
+            return GetContextClassName ( state .StateParallel );
+         }
+      }
 
-        protected string GetObjectFieldName(string obj)
-        {
-            return "_" + obj;
-        }
+      protected string GetParallelClassName ( StateType state )
+      {
+         return Model .settings .name + state .name + "Parallel";
+      }
 
-        protected string GetParallelLocalVariableName(StateType state)
-        {
-            return "parallel" + state.name;
-        }
+      protected string GetObjectFieldName ( string obj )
+      {
+         return "_" + obj;
+      }
 
-        protected string GetParallelFieldName(StateType state)
-        {
-            return "_parallel" + state.name;
-        }
+      protected string GetParallelLocalVariableName ( StateType state )
+      {
+         return "parallel" + state .name;
+      }
 
-        protected StateType GetStateInitial(StateType state) 
-        {
-            if ((state.state == null) || (state.state.Length == 0)) {
-                return state;
-            } else {
-                return GetStateInitial(state.state[0]);
-            }
-        }
+      protected string GetParallelFieldName ( StateType state )
+      {
+         return "_parallel" + state .name;
+      }
 
-        protected string GetTimerFieldName(TimerType timer)
-        {
-            return "timer" + timer.name;
-        }
+      protected StateType GetStateInitial ( StateType state )
+      {
+         if ((state .state == null) || (state .state .Length == 0))
+         {
+            return state;
+         }
+         else
+         {
+            return GetStateInitial ( state .state[0] );
+         }
+      }
 
-        protected string GetTimerStartName(TimerType timer)
-        {
-            return "TimerStart" + timer.name;
-        }
+      protected string GetTimerFieldName ( TimerType timer )
+      {
+         return "timer" + timer .name;
+      }
 
-        protected string GetTimerStopName(TimerType timer)
-        {
-            return "TimerStop" + timer.name;
-        }
+      protected string GetTimerStartName ( TimerType timer )
+      {
+         return "TimerStart" + timer .name;
+      }
 
-        /// <summary>
-        /// Get the property name: Client_bob
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        protected string GetPropertyName(ObjectType obj)
-        {
-            return obj.@class + "_" + obj.instance;
-        }
+      protected string GetTimerStopName ( TimerType timer )
+      {
+         return "TimerStop" + timer .name;
+      }
 
-        //}
-        // StateMachineHelper.ProcessTransitionBegin<DoorContext, DoorContext, StateTop>(context, StateNext.Instance);
-        // or
-        // StateMachineHelper.ProcessTransitionEnd<DoorContext, DoorContext, StateTop>(context, StateNext.Instance);
-        protected void WriteProcessTransition(CodeStatementCollection statements, StateType state, string nextStateName, string suffix)
-        {
-            CodeExpression[] paramsRef;
+      /// <summary>
+      /// Get the property name: Client_bob
+      /// </summary>
+      /// <param name="obj"></param>
+      /// <returns></returns>
+      protected string GetPropertyName ( ObjectType obj )
+      {
+         return obj .@class .ToSaveName ( ) + "_" + obj .instance;
+      }
 
-            StateType stateNext = Model.GetStateType(nextStateName);
-            
-            string stateTopClassName;
-            string contextClassName;
-            string contextParentClassName;
-            // context or context.ContextParent or context.ContextParent.ContextParent .... depending where is stateNext compared to state.
-            var contextExpression = GetContextParentExpression(state, stateNext);
+      //}
+      // StateMachineHelper.ProcessTransitionBegin<DoorContext, DoorContext, StateTop>(context, StateNext.Instance);
+      // or
+      // StateMachineHelper.ProcessTransitionEnd<DoorContext, DoorContext, StateTop>(context, StateNext.Instance);
+      protected void WriteProcessTransition ( CodeStatementCollection statements, StateType state, string nextStateName, string suffix )
+      {
+         CodeExpression[] paramsRef;
 
-            if (stateNext == null)
-            {
-                //Internal transition
-                paramsRef = new CodeExpression[] { 
-                                      contextExpression, 
+         StateType stateNext = Model .GetStateType ( nextStateName );
+
+         string stateTopClassName;
+         string contextClassName;
+         string contextParentClassName;
+         // context or context.ContextParent or context.ContextParent.ContextParent .... depending where is stateNext compared to state.
+         var contextExpression = GetContextParentExpression ( state, stateNext );
+
+         if (stateNext == null)
+         {
+            //Internal transition
+            paramsRef = new CodeExpression[] {
+                                      contextExpression,
                                       new CodePrimitiveExpression(null)};
 
-                stateTopClassName = GetStateClassName(Model.GetStateTop(state));
-                contextClassName = GetContextClassName(state);
-                contextParentClassName = GetContextParentClassName(state);
+            stateTopClassName = GetStateClassName ( Model .GetStateTop ( state ) );
+            contextClassName = GetContextClassName ( state );
+            contextParentClassName = GetContextParentClassName ( state );
+         }
+         else
+         {
+            CodeExpression nextStateExpression;
+
+            if (stateNext .Type .HasFlag ( StateType .TypeFlags .HISTORY ))
+            {
+               // context.StateHistory
+               nextStateExpression = new CodeFieldReferenceExpression (
+                                        new CodeVariableReferenceExpression ( Model .settings .context .instance ),
+                                        "StateHistory" );
+
             }
             else
             {
-                CodeExpression nextStateExpression;
-                
-                if (stateNext.Type.HasFlag(StateType.TypeFlags.HISTORY))
-                {
-                    // context.StateHistory
-                    nextStateExpression = new CodeFieldReferenceExpression(
-                                             new CodeVariableReferenceExpression(Model.settings.context.instance),
-                                             "StateHistory");
-                    
-                }
-                else 
-                {
-                    StateType stateLeaf = Model.GetStateLeaf(stateNext);
-                    // NextState.Instance
-                    nextStateExpression = new CodeFieldReferenceExpression(
-                        new CodeVariableReferenceExpression(GetStateClassName(stateLeaf)),
-                        "Instance");
-                }
-
-                stateTopClassName = GetStateClassName(Model.GetStateTop(stateNext));
-                contextClassName = GetContextClassName(stateNext);
-                contextParentClassName = GetContextParentClassName(stateNext);
-                paramsRef = new CodeExpression[] { 
-                                      contextExpression, 
-                                      nextStateExpression};
+               StateType stateLeaf = Model .GetStateLeaf ( stateNext );
+               // NextState.Instance
+               nextStateExpression = new CodeFieldReferenceExpression (
+                   new CodeVariableReferenceExpression ( GetStateClassName ( stateLeaf ) ),
+                   "Instance" );
             }
 
-            // param StateRunning.Instance
-            var onMethodInvoke = new CodeMethodInvokeExpression(
-                      new CodeMethodReferenceExpression(
-                         new CodeVariableReferenceExpression("StateMachineHelper"),
-                         "ProcessTransition" + suffix,
-                         new CodeTypeReference[] {
+            stateTopClassName = GetStateClassName ( Model .GetStateTop ( stateNext ) );
+            contextClassName = GetContextClassName ( stateNext );
+            contextParentClassName = GetContextParentClassName ( stateNext );
+            paramsRef = new CodeExpression[] {
+                                      contextExpression,
+                                      nextStateExpression};
+         }
+
+         // param StateRunning.Instance
+         var onMethodInvoke = new CodeMethodInvokeExpression (
+                   new CodeMethodReferenceExpression (
+                      new CodeVariableReferenceExpression ( "StateMachineHelper" ),
+                      "ProcessTransition" + suffix,
+                      new CodeTypeReference[] {
                                     new CodeTypeReference(contextClassName),
                                     new CodeTypeReference(contextParentClassName),
-                                    new CodeTypeReference((stateTopClassName))}),
-                         paramsRef);
+                                    new CodeTypeReference((stateTopClassName))} ),
+                      paramsRef );
 
-            statements.Add(onMethodInvoke);
-        }
+         statements .Add ( onMethodInvoke );
+      }
 
-        /// <summary>
-        /// Depth = 0: context
-        /// Depth = 1: context.ContextParent
-        /// Depth = 2: context.ContextParent.ContextParent
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="stateNext"></param>
-        /// <returns></returns>
-        protected CodeExpression GetContextParentExpression(StateType state, StateType stateNext)
-        {
-            CodeExpression contextExpression = new CodeVariableReferenceExpression(Model.settings.context.instance);
-            if (stateNext != null)
-            {
-                int contextDepth = Model.ContextDepth(state, stateNext);
-                for (int i = 1; i <= contextDepth; i++)
-                {
-                    contextExpression = new CodeFieldReferenceExpression(contextExpression, "ContextParent");
-                }
-            }
-            return contextExpression;
-        }
+      #region Partial OnCreated facilitation
 
-        // If next state is final, invoke:
-        // context.OnEnd();
-        // or 
-        // context.ContextParent.OnEnd();
-        protected void WriteContextOnEnd(CodeStatementCollection statements, StateType state, StateType stateNext)
-        {
-            //Special case when the next state is a final state.
-            if ((stateNext != null) && (stateNext.Type.HasFlag(StateType.TypeFlags.FINAL)))
-            {
-                statements.Add(new CodeCommentStatement("Notify the end of this state machine."));
+      public static void Add_Partial__OnCreated__Declaration_Member ( CodeTypeDeclaration code )
+         => code .Members .Add ( CoderBase .Create_Partial__OnCreated__Declaration_Member ( ) );
 
-                // context or context.ContextParent or context.ContextParent.ContextParent .... depending where is stateNext compared to state.
-                var contextExpression = GetContextParentExpression(state, stateNext);
 
-                // context.OnEnd();
-                CodeMethodInvokeExpression methodInvoke = new CodeMethodInvokeExpression(
-                      contextExpression,
-                      "OnEnd");
-                statements.Add(methodInvoke);
-            }
-        }
+      public static void Add_Partial__OnCreated__Statement ( CodeConstructor ctor )
+         => ctor .Statements .Add ( CoderBase .Create_Partial__OnCreated__Statement ( ) );
 
-        protected CodeTypeReference GetTypeReference(string type) {
-            if (type == "byte")
-            {
-                return new CodeTypeReference(typeof(byte));
-            }
-            else if (type == "sbyte")
-            {
-                return new CodeTypeReference(typeof(sbyte));
-            }
-            else if (type == "bool")
-            {
-                return new CodeTypeReference(typeof(bool));
-            }
-            else if (type == "char")
-            {
-                return new CodeTypeReference(typeof(char));
-            }
-            else if (type == "short")
-            {
-                return new CodeTypeReference(typeof(short));
-            }
-            else if (type == "ushort")
-            {
-                return new CodeTypeReference(typeof(ushort));
-            }
-            else if (type == "decimal")
-            {
-                return new CodeTypeReference(typeof(decimal));
-            }
-            else if (type == "double")
-            {
-                return new CodeTypeReference(typeof(double));
-            }
-            else if (type == "float")
-            {
-                return new CodeTypeReference(typeof(float));
-            }
-            else if (type == "int")
-            {
-                return new CodeTypeReference(typeof(int));
-            }
-            else if (type == "uint")
-            {
-                return new CodeTypeReference(typeof(uint));
-            }
-            else if (type == "long")
-            {
-                return new CodeTypeReference(typeof(long));
-            }
-            else if (type == "ulong")
-            {
-                return new CodeTypeReference(typeof(ulong));
-            }
 
-            else if (type == "string")
+      public static void Add_Partial__OnCreated__Statement ( CodeMemberMethod method )
+         => method .Statements .Add ( CoderBase .Create_Partial__OnCreated__Statement ( ) );
+
+      public static void Add_Partial__OnCreated__Statement__Get ( CodeMemberProperty prop )
+         => prop .GetStatements .Add ( CoderBase .Create_Partial__OnCreated__Statement ( ) );
+
+      public static void Add_Partial__OnCreated__Statement__Set ( CodeMemberProperty prop )
+         => prop .SetStatements .Add ( CoderBase .Create_Partial__OnCreated__Statement ( ) );
+
+
+
+      public static CodeSnippetExpression Create_Partial__OnCreated__Statement ( )
+      => new CodeSnippetExpression ( "OnCreated()" );
+
+
+      public static CodeSnippetTypeMember Create_Partial__OnCreated__Declaration_Member ( )
+      => new CodeSnippetTypeMember ( "\t\tpartial void OnCreated();" );
+      #endregion
+
+
+      /// <summary>
+      /// Depth = 0: context
+      /// Depth = 1: context.ContextParent
+      /// Depth = 2: context.ContextParent.ContextParent
+      /// </summary>
+      /// <param name="state"></param>
+      /// <param name="stateNext"></param>
+      /// <returns></returns>
+      protected CodeExpression GetContextParentExpression ( StateType state, StateType stateNext )
+      {
+         CodeExpression contextExpression = new CodeVariableReferenceExpression ( Model .settings .context .instance );
+         if (stateNext != null)
+         {
+            int contextDepth = Model .ContextDepth ( state, stateNext );
+            for (int i = 1 ; i <= contextDepth ; i++)
             {
-                return new CodeTypeReference(typeof(string));
+               contextExpression = new CodeFieldReferenceExpression ( contextExpression, "ContextParent" );
             }
-            else
-            {
-                return new CodeTypeReference(type);
-            }
-        }
-    }
+         }
+         return contextExpression;
+      }
+
+      // If next state is final, invoke:
+      // context.OnEnd();
+      // or 
+      // context.ContextParent.OnEnd();
+      protected void WriteContextOnEnd ( CodeStatementCollection statements, StateType state, StateType stateNext )
+      {
+         //Special case when the next state is a final state.
+         if ((stateNext != null) && (stateNext .Type .HasFlag ( StateType .TypeFlags .FINAL )))
+         {
+            statements .Add ( new CodeCommentStatement ( "Notify the end of this state machine." ) );
+
+            // context or context.ContextParent or context.ContextParent.ContextParent .... depending where is stateNext compared to state.
+            var contextExpression = GetContextParentExpression ( state, stateNext );
+
+            // context.OnEnd();
+            CodeMethodInvokeExpression methodInvoke = new CodeMethodInvokeExpression (
+                  contextExpression,
+                  "OnEnd" );
+            statements .Add ( methodInvoke );
+         }
+      }
+
+      protected CodeTypeReference GetTypeReference ( string type )
+      {
+         if (type == "byte")
+         {
+            return new CodeTypeReference ( typeof ( byte ) );
+         }
+         else if (type == "sbyte")
+         {
+            return new CodeTypeReference ( typeof ( sbyte ) );
+         }
+         else if (type == "bool")
+         {
+            return new CodeTypeReference ( typeof ( bool ) );
+         }
+         else if (type == "char")
+         {
+            return new CodeTypeReference ( typeof ( char ) );
+         }
+         else if (type == "short")
+         {
+            return new CodeTypeReference ( typeof ( short ) );
+         }
+         else if (type == "ushort")
+         {
+            return new CodeTypeReference ( typeof ( ushort ) );
+         }
+         else if (type == "decimal")
+         {
+            return new CodeTypeReference ( typeof ( decimal ) );
+         }
+         else if (type == "double")
+         {
+            return new CodeTypeReference ( typeof ( double ) );
+         }
+         else if (type == "float")
+         {
+            return new CodeTypeReference ( typeof ( float ) );
+         }
+         else if (type == "int")
+         {
+            return new CodeTypeReference ( typeof ( int ) );
+         }
+         else if (type == "uint")
+         {
+            return new CodeTypeReference ( typeof ( uint ) );
+         }
+         else if (type == "long")
+         {
+            return new CodeTypeReference ( typeof ( long ) );
+         }
+         else if (type == "ulong")
+         {
+            return new CodeTypeReference ( typeof ( ulong ) );
+         }
+
+         else if (type == "string")
+         {
+            return new CodeTypeReference ( typeof ( string ) );
+         }
+         else
+         {
+            return new CodeTypeReference ( type );
+         }
+      }
+   }
 }

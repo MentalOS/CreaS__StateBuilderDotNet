@@ -1,0 +1,40 @@
+﻿
+Table of Contents
+
+Composable Architecture
+1. Introduction
+1.1 Requirements
+1.2 Delivery Modes
+1.3 Subscription Managers
+1.4 Example
+2. Notations and Terminology
+2.1 Notational Conventions
+2.2 XML Namespaces
+2.3 Terminology
+2.4 Compliance
+3. Subscription Messages
+3.1 Subscribe
+3.2 Renew
+3.3 GetStatus
+3.4 Unsubscribe
+3.5 Subscription End
+4. Notifications
+5. Faults
+5.1 DeliveryModeRequestedUnavailable
+5.2 InvalidExpirationTime
+5.3 UnsupportedExpirationType
+5.4 FilteringNotSupported
+5.5 FilteringRequestedUnavailable
+5.6 EventSourceUnableToProcess
+5.7 UnableToRenew
+5.8 InvalidMessage
+6. Security Considerations
+6.1 Message Security
+6.2 Access Control
+7. Implementation Considerations
+8. Acknowledgements
+9. References
+Appendix I — Service Metadata for Eventing
+Appendix II — XML Schema
+Appendix III — WSDL
+Composable Architecture

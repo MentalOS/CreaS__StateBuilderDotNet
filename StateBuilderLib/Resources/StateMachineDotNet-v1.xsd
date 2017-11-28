@@ -9,7 +9,6 @@
             Xml files conforming to this schema are used by StateBuilderDotNet to generate C# or VB.NET code.
         </xsd:documentation>
     </xsd:annotation>
-
     <xsd:complexType name="ParameterType">
         <xsd:annotation>
             <xsd:documentation>
@@ -64,6 +63,13 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="visibility" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The visibility of the event from outside classes.  private, internal, public (default).
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
         <xsd:attribute name="preAction" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation>
@@ -77,6 +83,28 @@
                 <xsd:documentation>
                     The action that is executed last when the event is triggered, regardless of the current state,
                     and whether a transition is triggered or not.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="buspublish" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The action is published to the bus using Bus interface or Specified Settings bus.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="busname" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The bus name where the event occurence is published to using BDSBus.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="static" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The action fire event statically (subscription are made to the event statically (one handler receive all instance of events)
+                    All instance of the feeder has their static event subscribed to any instance context meaning that when a context publish an event, the static event receive it in such a way that it would be possible to subscribe to the Feeder.MyStatic event and the handler would receive any publishing instances does.
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
@@ -109,7 +137,6 @@
                 <xsd:documentation>The name of this event source. If the attribute file is present, name means the name of the interface to find in the file.</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-
         <xsd:attribute name="file" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation>The name of the file where the interface ist.</xsd:documentation>
@@ -120,13 +147,24 @@
                 <xsd:documentation>A partial class is created that contains methods which feeds events to the context. Do not forget to mark this class as partial in your code.</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="feeded" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>Same as feeder but uses the EventSource Name - A partial class is created that contains methods which feeds events to the context. Do not forget to mark this class as partial in your code.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
         <xsd:attribute name="description" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation>The description of this event source.</xsd:documentation>
             </xsd:annotation>
+        </xsd:attribute>    
+        <xsd:attribute name="buspublish" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>
+                    All the event action are published to the bus using BDSBus. (TODO)
+                </xsd:documentation>
+            </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>
-
     <xsd:complexType name="EventsType">
         <xsd:sequence>
             <xsd:annotation>
@@ -368,6 +406,16 @@
                 <xsd:documentation>The namespace where to find the the object class.</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="generictypes" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>Specify generic types to add to the object partial class.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="genericwhere" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>Specify generic where statement to add to the object partial class applied to generic type (works with generictypes declaration).</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
     </xsd:complexType>
 
     <xsd:complexType name="ContextType">
@@ -414,6 +462,36 @@
         <xsd:attribute name="name" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation>The name of the state machine. Default is the name of the file without the extension.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="writelinestatechanges" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>Write line the State changes in the console.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="observerconsole" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>OBserved by the console.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="observertarget" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>The target name of an observer. default : ObserverConsole.Instance </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="buspublisherenabled" type="xsd:boolean" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>The bus is enabled for publishing events.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="buspublishermethod" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>The bus method to call for publishing events.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="busglobalname" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>The global bus  name to publish events. overriden by specific bus in event otherwise this value is used.</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="namespace" type="xsd:string" use="required">

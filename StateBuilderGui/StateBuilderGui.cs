@@ -51,10 +51,11 @@ namespace StateForge
             InitializeComponent();
             InitializeMostRecentUsedList();
 
-            if (string.IsNullOrEmpty(Settings.Default.PrependFile) == false)
-            {
-                textBoxPrependFile.Text = Settings.Default.PrependFile;
-            }
+            //DEBUG
+            //if (string.IsNullOrEmpty(Settings.Default.PrependFile) == false)
+            //{
+            //    textBoxPrependFile.Text = Settings.Default.PrependFile;
+            //}
         }
 
         /// <summary>
@@ -70,10 +71,19 @@ namespace StateForge
             
 
             var gui = new StateBuilderGui();
+            if (args.Length > 0)
+                foreach (var a in args)
+                {
+                    if (File.Exists(a))
+                    {
+                        autoGen = true;
+                        gui.CurrentFsmFileName = Path.GetFullPath(a);
+                    }
+                }
 
             gui.ParseArgs(args);
 
-            if (gui.options.batchMode == true)
+            if (gui.options.batchMode == true || autoGen)
             {
                 gui.errorCode = gui.Generate();
             }
@@ -86,6 +96,7 @@ namespace StateForge
             System.Diagnostics.Debug.Flush();
             Environment.Exit((int)gui.errorCode);
         }
+        static bool autoGen = false;
 
         private bool ParseArgs(string[] args)
         {
@@ -176,6 +187,7 @@ namespace StateForge
 
         public ReturnCode Generate()
         {
+         string rMsg = "";
             try
             {
                 this.stateBuilder = CreateBuilderFromOption(this.options);
@@ -185,16 +197,22 @@ namespace StateForge
             {
                 ts.TraceEvent(TraceEventType.Error, 1, "IOException: {0}", ioException.Message);
                 errorCode = ReturnCode.IOException;
+            rMsg += ioException .Message + "\n" + ioException .ToString ( );
+
             }
             catch (XmlException xmlException)
             {
                 ts.TraceEvent(TraceEventType.Error, 1, "XmlException: {0}", xmlException.Message);
                 errorCode = ReturnCode.XmlException;
+            rMsg +=  xmlException .Message + "\n" +  xmlException .ToString ( );
+
             }
             catch (UnauthorizedAccessException unauthorizedAccessException)
             {
                 ts.TraceEvent(TraceEventType.Error, 1, "Unauthorized Access Exception: {0}", unauthorizedAccessException.Message);
                 errorCode = ReturnCode.UnauthorizedAccessException;
+            rMsg +=   unauthorizedAccessException .Message + "\n" +   unauthorizedAccessException .ToString ( );
+
             }
             catch (Exception exception)
             {
@@ -205,7 +223,14 @@ namespace StateForge
                 }
                 ts.TraceEvent(TraceEventType.Error, 1, "Exception: {0}", exception.Message);
                 errorCode = ReturnCode.Error;
+            rMsg +=   exception .Message + "\n" +   exception .ToString ( );
+
             }
+
+         //write msg in file for debug
+         if (rMsg != "")
+            File .AppendAllText ( "debug_exception.txt", $"\n-----{errorCode}------\n" + rMsg  + "----- " + DateTime.Now + "\n\n");
+
             return errorCode;
         }
 
@@ -383,24 +408,25 @@ namespace StateForge
         /// </summary>
         private void InitializeMostRecentUsedList()
         {
-            StringCollection mruList = Settings.Default.MruList;
-            // Create the MRU on first use
-            if (mruList == null)
-            {
-                Settings.Default.MruList = new StringCollection();
-            }
-            else
-            {
-                // Get rid of files that no longer exist
-                for (int i = 0; i < mruList.Count; i++)
-                {
-                    if (!File.Exists(mruList[i]))
-                    {
-                        mruList.RemoveAt(i);
-                    }
-                }
-                FillComboxBoxInputFilename();
-            }
+            //DEBUG
+            //StringCollection mruList = Settings.Default.MruList;
+            //// Create the MRU on first use
+            //if (mruList == null)
+            //{
+            //    Settings.Default.MruList = new StringCollection();
+            //}
+            //else
+            //{
+            //    // Get rid of files that no longer exist
+            //    for (int i = 0; i < mruList.Count; i++)
+            //    {
+            //        if (!File.Exists(mruList[i]))
+            //        {
+            //            mruList.RemoveAt(i);
+            //        }
+            //    }
+            //    FillComboxBoxInputFilename();
+            //}
         }
         /// <summary>
         /// Update the MRU list with the specified project filename by
